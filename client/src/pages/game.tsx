@@ -1,12 +1,67 @@
 import { useState, useCallback, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { X, Circle, RotateCcw, Sparkles, Copy, Check } from "lucide-react";
+import { X, Circle, RotateCcw, Sparkles, Copy, Check, Flower2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import type { CellValue, GameState, GameStatus, Player } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+
+function FloralDecoration({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 100 100"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g opacity="0.15">
+        <circle cx="50" cy="50" r="8" fill="currentColor" />
+        <ellipse cx="50" cy="30" rx="8" ry="15" fill="currentColor" />
+        <ellipse cx="50" cy="70" rx="8" ry="15" fill="currentColor" />
+        <ellipse cx="30" cy="50" rx="15" ry="8" fill="currentColor" />
+        <ellipse cx="70" cy="50" rx="15" ry="8" fill="currentColor" />
+        <ellipse cx="35" cy="35" rx="10" ry="6" fill="currentColor" transform="rotate(-45 35 35)" />
+        <ellipse cx="65" cy="35" rx="10" ry="6" fill="currentColor" transform="rotate(45 65 35)" />
+        <ellipse cx="35" cy="65" rx="10" ry="6" fill="currentColor" transform="rotate(45 35 65)" />
+        <ellipse cx="65" cy="65" rx="10" ry="6" fill="currentColor" transform="rotate(-45 65 65)" />
+      </g>
+    </svg>
+  );
+}
+
+function FloralCorner({ position }: { position: "top-left" | "top-right" | "bottom-left" | "bottom-right" }) {
+  const rotations = {
+    "top-left": "rotate-0",
+    "top-right": "rotate-90",
+    "bottom-right": "rotate-180",
+    "bottom-left": "-rotate-90",
+  };
+  const positions = {
+    "top-left": "top-0 left-0",
+    "top-right": "top-0 right-0",
+    "bottom-left": "bottom-0 left-0",
+    "bottom-right": "bottom-0 right-0",
+  };
+  
+  return (
+    <svg
+      className={`absolute ${positions[position]} w-24 h-24 text-primary/10 ${rotations[position]} pointer-events-none`}
+      viewBox="0 0 100 100"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0 0 Q20 30, 10 50 Q0 70, 20 80 Q40 90, 30 70 Q20 50, 40 40 Q60 30, 50 10 Q40 -10, 20 10 Q0 30, 0 0"
+        fill="currentColor"
+      />
+      <circle cx="15" cy="25" r="6" fill="currentColor" opacity="0.5" />
+      <circle cx="35" cy="15" r="4" fill="currentColor" opacity="0.3" />
+      <ellipse cx="25" cy="45" rx="8" ry="12" fill="currentColor" opacity="0.4" transform="rotate(-30 25 45)" />
+    </svg>
+  );
+}
 
 const WINNING_COMBINATIONS = [
   [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -93,31 +148,36 @@ function GameCell({
       disabled={disabled || value !== null}
       className={`
         aspect-square w-full rounded-2xl flex items-center justify-center
-        transition-all duration-200
-        ${isWinning ? "bg-primary/20 ring-2 ring-primary" : "bg-card border border-card-border"}
-        ${!disabled && value === null ? "hover:scale-[1.02] hover:shadow-md cursor-pointer" : "cursor-default"}
+        transition-all duration-200 relative
+        ${isWinning ? "bg-gradient-to-br from-primary/25 to-primary/10 ring-2 ring-primary shadow-lg shadow-primary/20" : "bg-card border border-primary/10"}
+        ${!disabled && value === null ? "hover:scale-[1.02] hover:shadow-md hover:border-primary/30 cursor-pointer" : "cursor-default"}
         ${disabled ? "opacity-80" : ""}
         focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
       `}
       whileTap={!disabled && value === null ? { scale: 0.95 } : {}}
       aria-label={value ? `Cell ${index + 1}: ${value}` : `Empty cell ${index + 1}`}
     >
+      {!value && !disabled && (
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-20 transition-opacity">
+          <Heart className="w-8 h-8 text-primary" />
+        </div>
+      )}
       <AnimatePresence mode="wait">
         {value && (
           <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
+            initial={{ scale: 0, opacity: 0, rotate: -180 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
             exit={{ scale: 0, opacity: 0 }}
-            transition={{ duration: 0.2, type: "spring", stiffness: 500 }}
+            transition={{ duration: 0.3, type: "spring", stiffness: 400 }}
           >
             {value === "X" ? (
               <X 
-                className={`w-12 h-12 md:w-16 md:h-16 stroke-[3] ${isWinning ? "text-primary" : "text-primary"}`} 
+                className={`w-12 h-12 md:w-16 md:h-16 stroke-[3] text-primary drop-shadow-sm`} 
                 aria-hidden="true"
               />
             ) : (
               <Circle 
-                className={`w-10 h-10 md:w-14 md:h-14 stroke-[3] ${isWinning ? "text-accent-foreground" : "text-muted-foreground"}`} 
+                className={`w-10 h-10 md:w-14 md:h-14 stroke-[3] ${isWinning ? "text-primary/70" : "text-muted-foreground"}`} 
                 aria-hidden="true"
               />
             )}
@@ -166,22 +226,38 @@ function WinModal({
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
         className="relative"
       >
-        <Card className="p-8 max-w-md w-full text-center space-y-6 shadow-xl">
+        <Card className="p-8 max-w-md w-full text-center space-y-6 shadow-xl relative overflow-visible">
+          <div className="absolute -top-3 -left-3 text-primary/20">
+            <Flower2 className="w-10 h-10" />
+          </div>
+          <div className="absolute -top-3 -right-3 text-primary/20">
+            <Flower2 className="w-10 h-10" />
+          </div>
+          
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
           >
-            <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
-              <Sparkles className="w-8 h-8 text-primary" aria-hidden="true" />
+            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4 ring-2 ring-primary/20">
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+              >
+                <Sparkles className="w-10 h-10 text-primary" aria-hidden="true" />
+              </motion.div>
             </div>
           </motion.div>
 
           <div className="space-y-2">
-            <h2 className="text-2xl md:text-3xl font-medium text-foreground" data-testid="win-title">
-              Congratulations!
-            </h2>
-            <p className="text-muted-foreground font-body">
+            <div className="flex items-center justify-center gap-2">
+              <Heart className="w-5 h-5 text-primary fill-primary" />
+              <h2 className="text-2xl md:text-3xl font-medium text-foreground" data-testid="win-title">
+                Congratulations!
+              </h2>
+              <Heart className="w-5 h-5 text-primary fill-primary" />
+            </div>
+            <p className="text-muted-foreground">
               You've won! Here's your exclusive promo code:
             </p>
           </div>
@@ -192,9 +268,9 @@ function WinModal({
             transition={{ delay: 0.2 }}
             className="relative"
           >
-            <div className="bg-muted rounded-xl p-4 flex items-center justify-center gap-3">
+            <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 rounded-2xl p-5 flex items-center justify-center gap-3 border border-primary/20">
               <span 
-                className="text-3xl md:text-4xl font-bold tracking-wider font-mono text-foreground"
+                className="text-3xl md:text-4xl font-bold tracking-wider font-mono text-primary"
                 data-testid="promo-code"
               >
                 {promoCode}
@@ -216,16 +292,18 @@ function WinModal({
           </motion.div>
 
           {isSending && (
-            <p className="text-sm text-muted-foreground animate-pulse">
+            <p className="text-sm text-muted-foreground animate-pulse flex items-center justify-center gap-2">
+              <Flower2 className="w-4 h-4 animate-spin" />
               Sending to Telegram...
             </p>
           )}
 
           <Button
             onClick={onPlayAgain}
-            className="w-full rounded-full px-8 py-6 text-lg font-medium"
+            className="w-full rounded-full px-8 py-6 text-lg font-medium shadow-lg shadow-primary/20"
             data-testid="play-again-win"
           >
+            <Flower2 className="w-5 h-5 mr-2" />
             Play Again
           </Button>
         </Card>
@@ -255,8 +333,12 @@ function LossModal({
         exit={{ scale: 0.9, y: 20 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
       >
-        <Card className="p-8 max-w-md w-full text-center space-y-6 shadow-xl">
-          <div className="w-16 h-16 mx-auto rounded-full bg-muted flex items-center justify-center mb-4">
+        <Card className="p-8 max-w-md w-full text-center space-y-6 shadow-xl relative overflow-visible">
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 text-muted-foreground/30">
+            <Flower2 className="w-8 h-8" />
+          </div>
+          
+          <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center mb-4 ring-2 ring-border">
             <Circle className="w-8 h-8 text-muted-foreground" aria-hidden="true" />
           </div>
 
@@ -264,32 +346,46 @@ function LossModal({
             <h2 className="text-2xl md:text-3xl font-medium text-foreground" data-testid="loss-title">
               Nice Try!
             </h2>
-            <p className="text-muted-foreground font-body">
+            <p className="text-muted-foreground">
               The computer won this round. Want to give it another go?
             </p>
           </div>
 
-          <div className="bg-muted/50 rounded-xl p-4 text-left space-y-2">
-            <p className="text-sm font-medium text-foreground">Tips for winning:</p>
-            <ul className="text-sm text-muted-foreground space-y-1 font-body">
-              <li>• Try to control the center square</li>
-              <li>• Look for opportunities to create two-way wins</li>
-              <li>• Block the computer when it has two in a row</li>
+          <div className="bg-gradient-to-r from-muted/30 via-muted/50 to-muted/30 rounded-2xl p-4 text-left space-y-2 border border-border">
+            <p className="text-sm font-medium text-foreground flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              Tips for winning:
+            </p>
+            <ul className="text-sm text-muted-foreground space-y-1 pl-6">
+              <li className="flex items-start gap-2">
+                <Heart className="w-3 h-3 text-primary/50 mt-1 flex-shrink-0" />
+                <span>Try to control the center square</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Heart className="w-3 h-3 text-primary/50 mt-1 flex-shrink-0" />
+                <span>Look for opportunities to create two-way wins</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Heart className="w-3 h-3 text-primary/50 mt-1 flex-shrink-0" />
+                <span>Block the computer when it has two in a row</span>
+              </li>
             </ul>
           </div>
 
           {isSending && (
-            <p className="text-sm text-muted-foreground animate-pulse">
+            <p className="text-sm text-muted-foreground animate-pulse flex items-center justify-center gap-2">
+              <Flower2 className="w-4 h-4 animate-spin" />
               Recording result...
             </p>
           )}
 
           <Button
             onClick={onPlayAgain}
-            className="w-full rounded-full px-8 py-6 text-lg font-medium"
+            className="w-full rounded-full px-8 py-6 text-lg font-medium shadow-lg shadow-primary/20"
             data-testid="play-again-loss"
           >
-            Play Again
+            <Flower2 className="w-5 h-5 mr-2" />
+            Try Again
           </Button>
         </Card>
       </motion.div>
@@ -312,30 +408,49 @@ function DrawModal({ onPlayAgain }: { onPlayAgain: () => void }) {
         exit={{ scale: 0.9, y: 20 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
       >
-        <Card className="p-8 max-w-md w-full text-center space-y-6 shadow-xl">
-          <div className="flex justify-center gap-2">
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <X className="w-6 h-6 text-primary" aria-hidden="true" />
+        <Card className="p-8 max-w-md w-full text-center space-y-6 shadow-xl relative overflow-visible">
+          <div className="absolute -top-2 -left-2 text-primary/20">
+            <Flower2 className="w-6 h-6" />
+          </div>
+          <div className="absolute -top-2 -right-2 text-primary/20">
+            <Flower2 className="w-6 h-6" />
+          </div>
+          
+          <div className="flex justify-center gap-3">
+            <motion.div 
+              className="w-14 h-14 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center ring-2 ring-primary/20"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <X className="w-7 h-7 text-primary" aria-hidden="true" />
+            </motion.div>
+            <div className="flex items-center">
+              <Heart className="w-5 h-5 text-primary/40" />
             </div>
-            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-              <Circle className="w-6 h-6 text-muted-foreground" aria-hidden="true" />
-            </div>
+            <motion.div 
+              className="w-14 h-14 rounded-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center ring-2 ring-border"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+            >
+              <Circle className="w-7 h-7 text-muted-foreground" aria-hidden="true" />
+            </motion.div>
           </div>
 
           <div className="space-y-2">
             <h2 className="text-2xl md:text-3xl font-medium text-foreground" data-testid="draw-title">
               It's a Draw!
             </h2>
-            <p className="text-muted-foreground font-body">
+            <p className="text-muted-foreground">
               Great game! You matched the computer's skills. Try again?
             </p>
           </div>
 
           <Button
             onClick={onPlayAgain}
-            className="w-full rounded-full px-8 py-6 text-lg font-medium"
+            className="w-full rounded-full px-8 py-6 text-lg font-medium shadow-lg shadow-primary/20"
             data-testid="play-again-draw"
           >
+            <Flower2 className="w-5 h-5 mr-2" />
             Play Again
           </Button>
         </Card>
@@ -461,11 +576,26 @@ export default function Game() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="p-4 md:p-6 flex items-center justify-between gap-4 border-b border-border">
-        <h1 className="text-xl md:text-2xl font-medium text-foreground">
-          Tic-Tac-Toe
-        </h1>
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      <FloralCorner position="top-left" />
+      <FloralCorner position="top-right" />
+      <FloralCorner position="bottom-left" />
+      <FloralCorner position="bottom-right" />
+      
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <FloralDecoration className="absolute top-1/4 left-10 w-32 h-32 text-primary opacity-30" />
+        <FloralDecoration className="absolute top-1/3 right-8 w-24 h-24 text-primary opacity-20" />
+        <FloralDecoration className="absolute bottom-1/4 left-1/4 w-20 h-20 text-primary opacity-25" />
+        <FloralDecoration className="absolute bottom-1/3 right-1/4 w-28 h-28 text-primary opacity-20" />
+      </div>
+
+      <header className="relative z-10 p-4 md:p-6 flex items-center justify-between gap-4 border-b border-border bg-background/80 backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <Flower2 className="w-6 h-6 text-primary" aria-hidden="true" />
+          <h1 className="text-xl md:text-2xl font-medium text-foreground tracking-tight">
+            Tic-Tac-Toe
+          </h1>
+        </div>
         <Button
           variant="ghost"
           size="icon"
@@ -477,61 +607,81 @@ export default function Game() {
         </Button>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center p-4 md:p-8">
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center p-4 md:p-8">
         <div className="w-full max-w-md space-y-6">
-          <Card className="p-4 flex items-center justify-around text-center">
+          <Card className="p-5 flex items-center justify-around text-center relative overflow-visible">
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2">
+              <Heart className="w-4 h-4 text-primary/30 fill-primary/30" />
+            </div>
+            
             <div className="space-y-1">
               <div className="flex items-center justify-center gap-2">
-                <X className="w-5 h-5 text-primary" aria-hidden="true" />
-                <span className="text-sm text-muted-foreground font-body">You</span>
+                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                  <X className="w-4 h-4 text-primary" aria-hidden="true" />
+                </div>
+                <span className="text-sm text-muted-foreground">You</span>
               </div>
-              <p className="text-2xl font-bold text-foreground" data-testid="player-score">
+              <p className="text-2xl font-bold text-primary" data-testid="player-score">
                 {game.playerScore}
               </p>
             </div>
 
-            <div className="w-px h-12 bg-border" aria-hidden="true" />
+            <div className="flex flex-col items-center gap-1">
+              <Flower2 className="w-4 h-4 text-primary/20" />
+              <div className="w-px h-8 bg-gradient-to-b from-transparent via-border to-transparent" aria-hidden="true" />
+              <Flower2 className="w-4 h-4 text-primary/20" />
+            </div>
 
             <div className="space-y-1">
-              <span className="text-sm text-muted-foreground font-body">Draws</span>
+              <span className="text-sm text-muted-foreground">Draws</span>
               <p className="text-2xl font-bold text-foreground" data-testid="draw-score">
                 {game.drawCount}
               </p>
             </div>
 
-            <div className="w-px h-12 bg-border" aria-hidden="true" />
+            <div className="flex flex-col items-center gap-1">
+              <Flower2 className="w-4 h-4 text-primary/20" />
+              <div className="w-px h-8 bg-gradient-to-b from-transparent via-border to-transparent" aria-hidden="true" />
+              <Flower2 className="w-4 h-4 text-primary/20" />
+            </div>
 
             <div className="space-y-1">
               <div className="flex items-center justify-center gap-2">
-                <Circle className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
-                <span className="text-sm text-muted-foreground font-body">Computer</span>
+                <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+                  <Circle className="w-4 h-4 text-muted-foreground" aria-hidden="true" />
+                </div>
+                <span className="text-sm text-muted-foreground">Computer</span>
               </div>
-              <p className="text-2xl font-bold text-foreground" data-testid="computer-score">
+              <p className="text-2xl font-bold text-muted-foreground" data-testid="computer-score">
                 {game.computerScore}
               </p>
             </div>
           </Card>
 
-          <div className="text-center py-2">
+          <div className="text-center py-3">
             <AnimatePresence mode="wait">
               {game.status === "playing" && (
-                <motion.p
+                <motion.div
                   key={game.currentPlayer}
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="text-lg font-body text-muted-foreground"
+                  className="flex items-center justify-center gap-3"
                   data-testid="turn-indicator"
                 >
                   {isComputerThinking ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-muted-foreground animate-pulse" />
-                      Computer is thinking...
+                    <span className="flex items-center gap-2 text-muted-foreground">
+                      <Flower2 className="w-5 h-5 text-primary animate-spin" />
+                      <span>Computer is thinking...</span>
                     </span>
                   ) : (
-                    "Your turn"
+                    <span className="flex items-center gap-2 text-foreground font-medium">
+                      <Heart className="w-4 h-4 text-primary fill-primary" />
+                      <span>Your turn</span>
+                      <Heart className="w-4 h-4 text-primary fill-primary" />
+                    </span>
                   )}
-                </motion.p>
+                </motion.div>
               )}
             </AnimatePresence>
           </div>
@@ -558,10 +708,10 @@ export default function Game() {
               variant="outline"
               onClick={resetGame}
               disabled={game.board.every((c) => c === null)}
-              className="rounded-full px-6"
+              className="rounded-full px-6 border-primary/30"
               data-testid="new-game"
             >
-              <RotateCcw className="w-4 h-4 mr-2" />
+              <Flower2 className="w-4 h-4 mr-2 text-primary" />
               New Game
             </Button>
           </div>

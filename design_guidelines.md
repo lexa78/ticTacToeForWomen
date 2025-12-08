@@ -2,150 +2,168 @@
 
 ## Design Approach
 
-**Reference-Based Aesthetic**: Draw inspiration from modern lifestyle apps appealing to women 25-40 (Pinterest, Headspace, Calm, Spotify's softer interfaces). The game should feel elegant, playful yet sophisticated - not childish or overly cute. Think refined casual, like a well-designed mobile game rather than a basic web game.
+**Feminine Rose/Blush Pink Aesthetic**: A sophisticated, elegant design specifically for women aged 25-40. The theme features soft pink tones, floral decorative elements, and delicate accents like hearts and flowers. Think refined femininity - not childish or overly cute, but graceful and modern like premium lifestyle apps (Pinterest, Glossier, Charlotte Tilbury).
 
 **Core Principles**:
-- Sophisticated playfulness: Mature design with delightful micro-moments
+- Sophisticated femininity: Elegant pink palette with tasteful floral accents
 - Clean, uncluttered interface: Focus on the game board as the hero element
-- Polished, premium feel: Attention to detail in every element
-- Approachable yet refined: Welcoming without being overly decorative
+- Polished, premium feel: Attention to detail in every element with decorative touches
+- Warm and inviting: Soft colors and gentle animations create a welcoming atmosphere
+
+## Color System
+
+**Light Mode - Rose/Blush Pink Theme**:
+- Background: Soft blush pink (HSL 340 30% 97%)
+- Cards: Warm off-white with pink undertone (HSL 340 25% 98%)
+- Primary: Vibrant rose pink (HSL 340 72% 55%) - used for player X, buttons, accents
+- Muted: Gentle pink-gray (HSL 340 20% 92%)
+- Borders: Soft pink-tinted borders (HSL 340 20% 90%)
+- Text: Deep rose-tinted dark (HSL 340 25% 15%)
+
+**Dark Mode - Rose/Blush Pink Theme**:
+- Background: Deep rose-charcoal (HSL 340 20% 8%)
+- Cards: Elevated rose-dark (HSL 340 18% 11%)
+- Primary: Brighter rose pink (HSL 340 72% 62%) - more luminous for dark mode
+- Muted: Dark pink-charcoal (HSL 340 18% 16%)
+- All colors maintain the rose/pink undertone even in dark mode
+
+## Decorative Elements
+
+**Floral Accents**:
+- Corner flourishes: Abstract floral SVG patterns in page corners (low opacity)
+- Scattered flower decorations: Subtle background pattern elements
+- Flower2 icons from Lucide: Used in headers, buttons, and modals
+- All floral elements at 10-30% opacity to remain subtle
+
+**Heart Accents**:
+- Filled hearts in primary color for special moments (win celebrations)
+- Heart icons in turn indicators and score separators
+- Hearts as list item bullets in tips sections
 
 ## Layout System
 
-**Spacing Primitives**: Use Tailwind units of 2, 4, 6, 8, 12, 16, and 24 consistently (p-4, gap-6, mb-8, etc.)
+**Spacing Primitives**: Use Tailwind units of 2, 4, 6, 8, 12, 16, and 24 consistently
 
 **Game Layout Structure**:
-- Single-column centered layout with max-width container (max-w-2xl)
+- Single-column centered layout with max-width container (max-w-md)
+- Decorative floral corners in all four page corners
+- Background flower decorations scattered subtly
 - Game board as the central focal point (large, prominent, centered)
-- Score/status bar above the board (compact, elegant)
-- Action buttons/modals overlay the interface when triggered
-- Responsive: Full mobile-friendly with adequate touch targets (minimum 48px)
+- Score card with decorative dividers above the board
+- Header with flower icon and title
 
 ## Typography
 
-**Font Selection**: Use 2 Google Fonts via CDN
+**Font Selection**:
 - Primary: DM Sans (headings, UI elements) - modern, friendly, professional
-- Secondary: Inter (body text, game status) - clean, highly legible
+- Body: System fonts for clean readability
 
 **Type Hierarchy**:
-- Game Title/Header: text-2xl to text-3xl, font-medium
-- Status Messages: text-lg, font-normal
-- Board Symbols (X/O): text-6xl to text-7xl, font-bold
-- Button Text: text-base, font-medium
-- Promo Code: text-4xl, font-bold, tracking-wider (monospace treatment)
+- Game Title/Header: text-xl to text-2xl, font-medium, tracking-tight
+- Status Messages: text-lg, font-medium
+- Board Symbols (X/O): text-5xl to text-7xl, stroke-[3]
+- Button Text: text-lg, font-medium
+- Promo Code: text-3xl to text-4xl, font-bold, tracking-wider, font-mono, text-primary
 - Secondary Text: text-sm, font-normal
 
 ## Component Library
 
 ### Game Board
-- 3x3 grid with generous spacing (gap-4)
-- Square cells with aspect-ratio-square enforcement
-- Large, easily tappable cells (minimum 80px on mobile, 120px on desktop)
-- Rounded corners (rounded-xl to rounded-2xl)
-- Subtle depth treatment (soft shadows, not heavy drop shadows)
-- Hover states: gentle scale transform (scale-105) and slight shadow increase
-- Active cells: Clear visual feedback without being jarring
+- 3x3 grid with gap-3 to gap-4
+- Cells with rounded-2xl corners
+- Subtle pink-tinted borders (border-primary/10)
+- Hover: Scale up slightly, enhance shadow, border becomes more visible
+- Winning cells: Gradient background with ring and shadow in primary color
 
 ### Cell States
-- Empty: Clean, inviting appearance with subtle border
-- Player (X): Distinctive styling, bold presence
-- Computer (O): Different visual treatment from X, equally bold
-- Winning combination: Enhanced highlight treatment, celebratory feel
+- Empty: Clean with faint heart on hover
+- Player (X): Primary rose color, bold stroke, slight drop shadow
+- Computer (O): Muted foreground color
+- Winning combination: Gradient background, ring, and shadow highlight
+
+### Score Card
+- Card with overflow-visible for decorative elements
+- Heart decoration centered above the card
+- Circular avatar-style icons for player/computer
+- Flower decorations as dividers between score sections
+- Gradient divider lines
 
 ### Modals/Overlays
-- **Win Modal**: Celebratory without being overwhelming
-  - Large promo code display (center focus)
-  - Encouraging congratulatory message (text-xl, mb-4)
-  - Clear "Play Again" button (primary CTA)
-  - Subtle confetti or sparkle effect (CSS-only, no heavy animations)
-  - Backdrop blur (backdrop-blur-md) for elegant overlay
+- **Win Modal**: 
+  - Flower decorations in corners
+  - Animated sparkle icon with rotation effect
+  - Hearts flanking "Congratulations!" title
+  - Gradient promo code container with border
+  - Rounded-full button with flower icon and shadow
 
-- **Loss Modal**: Encouraging, not discouraging
-  - Friendly message: "Nice try! Want to play again?"
-  - Prominent "Play Again" button
-  - Optional "How to Win" tips section
-  - Same backdrop blur treatment
+- **Loss Modal**: 
+  - Single flower decoration at top
+  - Tips section with heart bullets
+  - Sparkle icon in tips header
+  - Encouraging "Try Again" message with flower icon
+
+- **Draw Modal**: 
+  - Flower decorations in corners
+  - Heart between player symbols
+  - Animated pulse on X and O icons
+  - Play Again button with flower icon
 
 ### Buttons
-- **Primary CTA** (Play Again, Start Game): Large, rounded-full or rounded-xl, px-8 py-3
-- **Secondary actions**: More subtle styling, rounded-lg, px-6 py-2
-- All buttons: font-medium, tracking-wide, uppercase or sentence case consistently
-- Touch-friendly: Minimum 44px height on mobile
+- Primary CTA: Rounded-full, shadow-lg with shadow-primary/20
+- Flower icons in buttons for feminine touch
+- Outline variant with border-primary/30
 
-### Status Bar
-- Compact header showing: Current turn, Score tracker
-- Flexbox layout: justify-between for balance
-- Rounded container with subtle background treatment
-- Icons from Heroicons for X/O indicators (circle, x-mark)
-
-### Navigation/Header (minimal)
-- Clean top bar with game title
-- Reset/New Game button (subtle, secondary style)
-- No heavy navigation - keep focus on gameplay
-
-## Component Enrichment
-
-**Enhanced Game Interface**:
-- Score tracker: Running tally of Player Wins | Draws | Computer Wins
-- Move counter: "Move #3" for engagement tracking
-- Difficulty selector toggle (Easy/Medium/Hard) - adds replay value
-- Sound toggle button (muted/unmuted state)
-- Animated turn indicator: "Your Turn" / "Computer Thinking..."
-
-**Win Screen Enrichment**:
-- Promo code with copy-to-clipboard button (icon: clipboard from Heroicons)
-- Social share prompt: "Share your win!" with share icon
-- Streak counter: "3 wins in a row!" if applicable
-- Telegram confirmation: Small success message "✓ Sent to Telegram"
-
-**Polish Details**:
-- Smooth transitions on all interactions (transition-all duration-200)
-- Subtle pulse animation on whose turn it is
-- Computer "thinking" animation (brief, 300-500ms pause)
-- Disabled state styling for cells during computer turn
+### Header
+- Flower2 icon next to game title
+- Backdrop blur with semi-transparent background
+- Clean border separation
 
 ## Animations
 
-**Minimal, Purposeful Animations**:
-- Cell click: Quick scale-down then return (duration-150)
-- Symbol appearance: Fade-in + slight scale (duration-300)
-- Win line: Draw-through animation on winning combination (duration-500)
-- Modal entrance: Fade + slight slide up (duration-300)
-- Promo code reveal: Gentle fade-in with scale effect
-- NO: Continuous loops, distracting particles, or heavy animation libraries
+**Framer Motion Effects**:
+- Symbol appearance: Scale + rotate from -180 to 0 for playful entrance
+- Modal entrance: Scale from 0.9 + slide up with spring physics
+- Win modal sparkle: Gentle rotation animation (10deg/-10deg oscillation)
+- X/O icons in draw modal: Subtle pulse scaling effect
+
+**CSS Animations**:
+- Flower icons: animate-spin for loading states
+- Pulse animation for thinking/loading text
 
 ## Responsive Behavior
 
-**Mobile-First Approach**:
-- Stack everything vertically on mobile
-- Game board: Touch-optimized cells (minimum 80px × 80px)
-- Modals: Full-width on mobile (rounded corners only on top)
-- Font sizes scale down appropriately (text-5xl on mobile vs text-7xl desktop)
+**Mobile-First**:
+- Touch-optimized cells (minimum 80px touch target)
+- Full-width modals on mobile
+- Condensed header spacing
 
-**Breakpoint Strategy**:
-- Base (mobile): Single column, stacked layout
-- md: Slightly larger board, more breathing room
-- lg: Maximum size, optimal desktop experience
+**Breakpoint Adjustments**:
+- md: Larger board cells, increased padding
+- lg: Maximum visual comfort
 
 ## Accessibility
 
-- Clear focus states on all interactive elements (ring-2 ring-offset-2)
-- Keyboard navigation support for board cells
-- ARIA labels: "Empty cell", "Your move: X", "Computer move: O"
-- High contrast between text and backgrounds
-- Screen reader announcements for game state changes
+- Clear focus states (ring-2 ring-primary ring-offset-2)
+- Keyboard navigation support
+- ARIA labels on all interactive elements
+- High contrast maintained between text and backgrounds
+- Icon aria-hidden="true" with descriptive button labels
 
 ## Technical Assets
 
-**Icons**: Heroicons via CDN
-- x-mark (for X moves)
-- circle (for O moves)  
-- clipboard (copy promo code)
-- arrow-path (restart game)
-- speaker-wave / speaker-x-mark (sound toggle)
+**Icons (Lucide React)**:
+- X (player moves)
+- Circle (computer moves)
+- Flower2 (decorative, buttons, header)
+- Heart (decorative, accents)
+- Sparkles (win celebration)
+- Copy / Check (promo code copy)
+- RotateCcw (reset game)
 
-**No Images Required**: This is a game interface - rely on clean typography and shapes. The game board itself is the visual hero.
+**Custom SVG Components**:
+- FloralDecoration: 8-petal flower pattern for background
+- FloralCorner: Abstract floral vine pattern for page corners
 
 ---
 
-**Final Notes**: This design balances sophistication with playfulness, creating an experience that feels premium and polished while remaining approachable. Every element serves the gameplay experience while appealing to the refined aesthetic preferences of the target demographic.
+**Final Notes**: This design creates an elegant, feminine experience with rose/blush pink tones, tasteful floral decorations, and heart accents. The aesthetic appeals to women 25-40 by balancing sophistication with warmth, creating a premium feel while remaining playful and inviting.
