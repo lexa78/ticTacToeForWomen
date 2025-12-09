@@ -43,9 +43,22 @@ export class MemStorage implements IStorage {
 
     let message: string;
     if (notification.type === "win" && notification.promoCode) {
-      message = `Win! Promo code issued: ${notification.promoCode}`;
+      message = `Победа! Промокод выдан: ${notification.promoCode}`;
     } else {
-      message = "Lost";
+        const comfortingMessages = [
+            "Не грусти, впереди новые радости ❤️😊",
+            "Проигрыш в игре — не проигрыш в жизни 🌸",
+            "Улыбка — уже маленькая победа ✨😌",
+            "Сегодня проиграла в игре, завтра выиграешь в жизни 💖🌷",
+            "Каждое поражение — это шаг к будущей победе 🌟😔",
+            "Не переживай, впереди много счастливых моментов 🌈🥰",
+        ];
+        // функция для случайного выбора фразы
+        const getRandomMessage = () => {
+            const index = Math.floor(Math.random() * comfortingMessages.length);
+            return comfortingMessages[index];
+        };
+      message = "Мне жаль, но ты проиграла.😢\n"  + getRandomMessage();
     }
 
     try {

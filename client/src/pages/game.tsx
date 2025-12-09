@@ -319,6 +319,19 @@ function LossModal({
   onPlayAgain: () => void;
   isSending: boolean;
 }) {
+    // массив утешающих фраз
+    const comfortingMessages = [
+        "Не грусти, впереди новые радости ❤️",
+        "Проигрыш в игре — не проигрыш в жизни 🌸",
+        "Улыбка — уже маленькая победа ✨",
+        "Сегодня проиграла в игре, завтра выиграешь в жизни 💖",
+        "Каждое поражение — это шаг к будущей победе 🌷",
+    ];
+    // функция для случайного выбора фразы
+    const getRandomMessage = () => {
+        const index = Math.floor(Math.random() * comfortingMessages.length);
+        return comfortingMessages[index];
+    };
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -354,20 +367,12 @@ function LossModal({
           <div className="bg-gradient-to-r from-muted/30 via-muted/50 to-muted/30 rounded-2xl p-4 text-left space-y-2 border border-border">
             <p className="text-sm font-medium text-foreground flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-primary" />
-              Tips for winning:
+                Words of comfort:
             </p>
             <ul className="text-sm text-muted-foreground space-y-1 pl-6">
               <li className="flex items-start gap-2">
                 <Heart className="w-3 h-3 text-primary/50 mt-1 flex-shrink-0" />
-                <span>Try to control the center square</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Heart className="w-3 h-3 text-primary/50 mt-1 flex-shrink-0" />
-                <span>Look for opportunities to create two-way wins</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Heart className="w-3 h-3 text-primary/50 mt-1 flex-shrink-0" />
-                <span>Block the computer when it has two in a row</span>
+                <span>{getRandomMessage()}</span>
               </li>
             </ul>
           </div>
